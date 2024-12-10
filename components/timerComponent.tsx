@@ -3,16 +3,16 @@ import React, {useState, useEffect} from "react";
 import {Button, Pressable, StyleSheet, Text, View} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'; // Import from expo-linear-gradient
   
+interface TimerComponentProps {
+  startingTime: number;  // 'startingTime' is expected to be a number (e.g., 1200 for 20 minutes)
+}
 
-
-export default function TimerComponent(){
-
-  const [timeLeft, setTimeLeft] = useState(1200);  // timeLeft in seconds
-  const [isRunning, setIsRunning] = useState(false); // To track whether the timer is running
-
+const TimerComponent: React.FC<TimerComponentProps> = ({ startingTime }) => {
+  const [timeLeft, setTimeLeft] = useState(startingTime);  // Set initial time from 'startingTime'
+  const [isRunning, setIsRunning] = useState(false);  // Track whether the timer is running
 
   useEffect(() => {
-    let timer: NodeJS.Timeout |null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
 
     // Start the timer
     if (isRunning && timeLeft > 0) {
@@ -39,7 +39,7 @@ export default function TimerComponent(){
   };
 
   const resetTimer = () => {
-    setTimeLeft(1200);  // Reset to 20 minutes (1200 seconds)
+    setTimeLeft(startingTime);  // Reset to 20 minutes (1200 seconds)
     setIsRunning(false); // Stop the timer
   };
   const formatTime = (time:number) => {
@@ -52,12 +52,13 @@ export default function TimerComponent(){
   return(<LinearGradient colors={["#73EC8B","#15B392"]} style={styles.gradient} // The container style for the gradient background 
   >
     <View style = {styles.container}>
-      <Text>
-      {formatTime(timeLeft)}
-      </Text>
-      <Pressable onPress={toggleTimer}><Text>Start</Text></Pressable>
-      <Pressable onPress={resetTimer}><Text>Reset</Text></Pressable>
-
+      <Text>{formatTime(timeLeft)}</Text>
+      <Pressable onPress={toggleTimer}>  
+        <Text> {isRunning ? 'Pause' : 'Start'} </Text> 
+      </Pressable>
+      <Pressable onPress={resetTimer}> 
+        <Text>Reset</Text> 
+      </Pressable>
     </View>
   </LinearGradient>)
 }
@@ -93,3 +94,5 @@ const styles = StyleSheet.create({
       lineHeight:60
     }
   });
+
+  export default TimerComponent

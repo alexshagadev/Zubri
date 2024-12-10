@@ -1,22 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, StyleSheet, Platform, View, SafeAreaView,Text } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import TimerComponent from '@/components/timerComponent';
-
+import SliderComponent from '@/components/settingsComponent';
 export default function TimerScreen() {
+  const [startingTime, setStartingTime] = useState(1200)
   return (
     <View>
       <SafeAreaView>
         <Text style = {styles.BigText}>T I M E R</Text>
-        <TimerComponent/>
+        <TimerComponent startingTime={startingTime}/>
       </SafeAreaView>
       <View style={styles.stepContainer}>
         <Text >Settings</Text>
-        {/* <SettingsComponent/> */}
+        <SliderComponent/>
       </View>
-      </View>
+    </View>
   );
 }
 
