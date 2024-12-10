@@ -14,7 +14,7 @@ export default function TimerScreen() {
         <TimerComponent startingTime={startingTime}/>
       </SafeAreaView>
       <View style={styles.stepContainer}>
-        <Text >Settings</Text>
+        <Text style= {styles.BigText} >S E T T I N G S</Text>
         <SliderComponent/>
       </View>
     </View>
