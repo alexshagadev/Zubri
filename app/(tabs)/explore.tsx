@@ -1,109 +1,226 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import { StyleSheet, View, SafeAreaView, Text, ScrollView, TextInput, Alert } from 'react-native';
+import React, {useState} from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export default function TabTwoScreen() {
+type Reminder = {
+  id: number;
+  text: string;
+  date: Date;
+};
+
+export default function ReminderScreen() {
+  const [reminders, setReminders] = useState<Reminder[]>([{
+    id: 1,
+    text: "Default Reminder",
+    date: new Date(),
+  },]);
+  const [newReminder, setNewReminder] = useState('');
+  const [reminderDate, setReminderDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [reminderId, setReminderId] = useState(-1);
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowPicker(false); // Hide the picker
+    if (selectedDate) {
+      setReminderDate(selectedDate);
+    }
+  
+    if (reminderId !== -1) {
+      const newReminders = reminders.map((reminder) => {
+        if (reminder.id === reminderId) {
+          return { ...reminder, date: selectedDate };
+        }
+        return reminder;
+      });
+      setReminders(newReminders);
+      setReminderId(-1);
+    }
+  };
+  
+
+  const handleAddReminder = () => {
+    if (newReminder.trim() === '') {
+      Alert.alert('Please enter a reminder text!'); 
+      return;
+    }
+  
+    const dateToUse = reminderDate ?? new Date(); // IF NO DATE IS SELECTED, USE THE CURRENT DATE
+  
+    setReminders([
+      ...reminders,
+      { id: reminders.length + 1, text: newReminder, date: dateToUse },
+    ]);
+  
+    // Clear the input and reset the date picker
+    setNewReminder('');
+    setReminderDate(new Date());
+    
+    console.log(reminders);
+
+    Alert.alert('Reminder added successfully!');
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <SafeAreaView>
+        <Text style={styles.title}>R E M I N D E R S</Text>
+      </SafeAreaView>
+
+      {/* NEW REMINDER Container */}
+      <View style={styles.newReminder}>
+        <LinearGradient colors={["#73EC8B","#15B392"]} style={styles.scrollContent}>
+          <View style={styles.item}>
+          <TextInput
+            placeholder="Add Reminder ..."
+            placeholderTextColor="#888"
+            value={newReminder}
+            onChangeText={(text) => setNewReminder(text)} // Assuming `setReminderText` manages the text state
+            />            
+            <View style={styles.iconContainer}>
+              <Icon 
+                name="clock-o" 
+                size={30} 
+                color="#09756C" 
+                style={{marginRight: 16}}
+                onPress={() => setShowPicker(true)}
+              />
+              <Icon 
+                name="check" 
+                size={30} 
+                color="#09756C"
+                onPress={() => handleAddReminder()}/>
+
+            </View>
+          </View>
+          
+        </LinearGradient>
+      </View>
+
+      {/* REMINDERS Container */}
+      <SafeAreaView style={styles.scrollContainer}>
+        <LinearGradient colors={["#73EC8B","#15B392"]} style={styles.gradient}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {/* REMINDERS MAPPING */}
+            {reminders.map((reminder) => (
+            <View key={reminder.id} style={styles.item}>
+            <View style={styles.textContainer}>
+              <Text style={styles.reminderText}>{reminder.text}</Text>
+              <Text style={styles.reminderDate}>{reminder.date.toDateString()}</Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <Icon 
+                name="clock-o" 
+                size={30} 
+                color="#09756C" 
+                style={{marginRight: 16}}
+                onPress={() => {
+                  setReminderId(reminder.id);
+                  setShowPicker(true);
+                }}              
+              />
+              <Icon 
+                name="trash" 
+                size={30} 
+                color="#09756C" 
+                onPress={() => setReminders(reminders.filter((r) => r.id !== reminder.id))}
+              />
+            </View>
+          </View>
+          ))}
+          </ScrollView>
+        </LinearGradient>
+      </SafeAreaView>
+
+      {showPicker && (
+        <DateTimePicker
+          value={reminderDate}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      )}
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  gradient: {
+    flex: 1, 
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  
+  reminderText: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: 'bold',
+    color: '#09756C',
+    textTransform: 'uppercase',
+  },
+
+  addReminderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#09756C',
+  },
+
+  reminderDate: {
+    fontSize: 12,
+    color: '#09756C',
+    textTransform: 'uppercase',
+  },
+
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+  },
+  title: {
+    fontWeight:800,
+    fontSize:40,
+    textAlign:"center",
+    lineHeight:60,
+    marginBottom: 16,
+  },
+  scrollContainer: {
+    height: 400, // Set a specific height for the ScrollView container
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  scrollContent: {
+    padding: 8,
+  },
+
+  newReminder: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+
+  item: {
+    flexDirection: 'row', // Aligns items horizontally
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    alignItems: 'center', // Ensures the icons and text are vertically aligned
+    justifyContent: 'space-between', // Distributes space between the elements
+  },
+
+  textContainer: {
+    flex: 1, // Ensures the text takes available space on the left
+    marginRight: 10, // Adds space between text and icons
+  },
+
+  iconContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'flex-end',
   },
 });
