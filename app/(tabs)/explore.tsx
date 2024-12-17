@@ -1,5 +1,6 @@
 import { StyleSheet, View, SafeAreaView, Text, ScrollView, TextInput, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -11,30 +12,55 @@ type Reminder = {
 };
 
 export default function ReminderScreen() {
-  const [reminders, setReminders] = useState<Reminder[]>([{
-    id: 1,
-    text: "Default Reminder",
-    date: new Date(),
-  }]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [newReminder, setNewReminder] = useState('');
   const [reminderDate, setReminderDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [reminderId, setReminderId] = useState(-1);
 
+  // Load reminders on component mount
+  useEffect(() => {
+    const loadReminders = async () => {
+      try {
+        const storedReminders = await AsyncStorage.getItem('reminders');
+        if (storedReminders) {
+          setReminders(JSON.parse(storedReminders).map((r: Reminder) => ({
+            ...r,
+            date: new Date(r.date), // Reconvert date strings to Date objects
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load reminders:', error);
+      }
+    };
+
+    loadReminders();
+  }, []);
+
+  // Save reminders whenever they change
+  useEffect(() => {
+    const saveReminders = async () => {
+      try {
+        await AsyncStorage.setItem('reminders', JSON.stringify(reminders));
+      } catch (error) {
+        console.error('Failed to save reminders:', error);
+      }
+    };
+
+    saveReminders();
+  }, [reminders]);
+
   const handleDateChange = (selectedDate: Date) => {
-    setShowPicker(false); // Hide the picker
+    setShowPicker(false);
     if (selectedDate) {
       setReminderDate(selectedDate);
     }
 
     if (reminderId !== -1) {
-      const newReminders = reminders.map((reminder) => {
-        if (reminder.id === reminderId) {
-          return { ...reminder, date: selectedDate };
-        }
-        return reminder;
-      });
-      setReminders(newReminders);
+      const updatedReminders = reminders.map((reminder) =>
+        reminder.id === reminderId ? { ...reminder, date: selectedDate } : reminder
+      );
+      setReminders(updatedReminders);
       setReminderId(-1);
     }
   };
@@ -45,19 +71,15 @@ export default function ReminderScreen() {
       return;
     }
 
-    const dateToUse = reminderDate ?? new Date(); // IF NO DATE IS SELECTED, USE THE CURRENT DATE
+    const newReminderObject: Reminder = {
+      id: Date.now(), // Unique ID
+      text: newReminder,
+      date: reminderDate ?? new Date(),
+    };
 
-    setReminders([
-      ...reminders,
-      { id: reminders.length + 1, text: newReminder, date: dateToUse },
-    ]);
-
-    // Clear the input and reset the date picker
+    setReminders([...reminders, newReminderObject]);
     setNewReminder('');
     setReminderDate(new Date());
-
-    console.log(reminders);
-
     Alert.alert('Reminder added successfully!');
   };
 
@@ -76,7 +98,7 @@ export default function ReminderScreen() {
               placeholder="Add Reminder ..."
               placeholderTextColor="#888"
               value={newReminder}
-              onChangeText={(text) => setNewReminder(text)} // Assuming `setReminderText` manages the text state
+              onChangeText={(text) => setNewReminder(text)}
             />
             <View style={styles.iconContainer}>
               <Icon
@@ -101,7 +123,6 @@ export default function ReminderScreen() {
       <SafeAreaView style={styles.scrollContainer}>
         <LinearGradient colors={["#73EC8B", "#15B392"]} style={styles.gradient}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {/* REMINDERS MAPPING */}
             {reminders.map((reminder) => (
               <View key={reminder.id} style={styles.item}>
                 <View style={styles.textContainer}>
@@ -138,7 +159,7 @@ export default function ReminderScreen() {
           value={reminderDate}
           mode="date"
           display="default"
-          onChange={(event, selectedDate) => handleDateChange(selectedDate!)} // Calling handleDateChange with selectedDate
+          onChange={(event, selectedDate) => handleDateChange(selectedDate!)}
         />
       )}
     </SafeAreaView>
@@ -170,14 +191,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
   },
   title: {
-    fontWeight: 800,
+    fontWeight: '800',
     fontSize: 40,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 60,
     marginBottom: 16,
   },
   scrollContainer: {
-    height: 400, // Set a specific height for the ScrollView container
+    height: 400,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
@@ -195,19 +216,19 @@ const styles = StyleSheet.create({
   },
 
   item: {
-    flexDirection: 'row', // Aligns items horizontally
+    flexDirection: 'row',
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
-    alignItems: 'center', // Ensures the icons and text are vertically aligned
-    justifyContent: 'space-between', // Distributes space between the elements
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
   textContainer: {
-    flex: 1, // Ensures the text takes available space on the left
-    marginRight: 10, // Adds space between text and icons
+    flex: 1,
+    marginRight: 10,
   },
 
   iconContainer: {

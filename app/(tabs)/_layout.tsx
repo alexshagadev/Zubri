@@ -27,12 +27,23 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tasks',
+          title: 'Home',
           tabBarIcon: ({ color }: {color: string}) => {
             return <IconSymbol size={28} name="house.fill" color={color} />;
           },
         }}
       />
+
+      <Tabs.Screen
+        name="tasks"
+        options={{
+          title: 'Tasks',
+          tabBarIcon: ({ color }: {color: string}) => {
+            return <IconSymbol size={28} name="list.bullet" color={color} />;
+          },
+        }}
+      />
+      
       <Tabs.Screen
         name="explore"
         options={{
