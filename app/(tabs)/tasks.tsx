@@ -1,8 +1,16 @@
-import { StyleSheet, View, SafeAreaView, Text, ScrollView, TextInput, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {
+  StyleSheet,
+  View,
+  SafeAreaView,
+  Text,
+  ScrollView,
+  TextInput,
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 type Task = {
   id: number;
@@ -12,18 +20,18 @@ type Task = {
 
 export default function TaskScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState('');
+  const [newTask, setNewTask] = useState("");
 
   // Load tasks from AsyncStorage
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        const storedTasks = await AsyncStorage.getItem('tasks');
+        const storedTasks = await AsyncStorage.getItem("tasks");
         if (storedTasks) {
           setTasks(JSON.parse(storedTasks));
         }
       } catch (error) {
-        console.error('Failed to load tasks:', error);
+        console.error("Failed to load tasks:", error);
       }
     };
 
@@ -34,9 +42,9 @@ export default function TaskScreen() {
   useEffect(() => {
     const saveTasks = async () => {
       try {
-        await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
+        await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
       } catch (error) {
-        console.error('Failed to save tasks:', error);
+        console.error("Failed to save tasks:", error);
       }
     };
 
@@ -44,8 +52,8 @@ export default function TaskScreen() {
   }, [tasks]);
 
   const handleAddTask = () => {
-    if (newTask.trim() === '') {
-      Alert.alert('Please enter a task!');
+    if (newTask.trim() === "") {
+      Alert.alert("Please enter a task!");
       return;
     }
 
@@ -54,8 +62,8 @@ export default function TaskScreen() {
       { id: Date.now(), text: newTask, priority: 0 }, // Unique id with Date.now()
     ]);
 
-    setNewTask('');
-    Alert.alert('Task added successfully!');
+    setNewTask("");
+    Alert.alert("Task added successfully!");
   };
 
   const togglePriority = (taskId: number) => {
@@ -71,13 +79,13 @@ export default function TaskScreen() {
   const getPriorityColor = (priority: number) => {
     switch (priority) {
       case 1:
-        return '#B0E57C'; // Light Green
+        return "#B0E57C"; // Light Green
       case 2:
-        return '#73C16E'; // Medium Green
+        return "#73C16E"; // Medium Green
       case 3:
-        return '#09756C'; // Dark Green
+        return "#09756C"; // Dark Green
       default:
-        return '#CCC'; // Empty
+        return "#CCC"; // Empty
     }
   };
 
@@ -90,7 +98,10 @@ export default function TaskScreen() {
 
       {/* NEW TASK Container */}
       <View style={styles.newTask}>
-        <LinearGradient colors={["#73EC8B", "#15B392"]} style={styles.scrollContent}>
+        <LinearGradient
+          colors={["#73EC8B", "#15B392"]}
+          style={styles.scrollContent}
+        >
           <View style={styles.item}>
             <TextInput
               placeholder="Add Task ..."
@@ -134,7 +145,9 @@ export default function TaskScreen() {
                   name="trash"
                   size={30}
                   color="#09756C"
-                  onPress={() => setTasks(tasks.filter((t) => t.id !== task.id))}
+                  onPress={() =>
+                    setTasks(tasks.filter((t) => t.id !== task.id))
+                  }
                 />
               </View>
             ))}
@@ -152,29 +165,30 @@ const styles = StyleSheet.create({
 
   taskText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#09756C',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    color: "#09756C",
+    textTransform: "uppercase",
   },
 
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
+    paddingTop: 50,
   },
   title: {
-    fontWeight: '800',
+    fontWeight: "800",
     fontSize: 40,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 60,
     marginBottom: 16,
   },
   scrollContainer: {
     height: 400, // Set a specific height for the ScrollView container
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   scrollContent: {
     padding: 8,
@@ -182,20 +196,20 @@ const styles = StyleSheet.create({
 
   newTask: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     marginBottom: 16,
   },
 
   item: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 
   textContainer: {
@@ -204,8 +218,8 @@ const styles = StyleSheet.create({
   },
 
   iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
   },
 });
