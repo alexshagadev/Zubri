@@ -10,39 +10,46 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const activeTintColor = Colors[colorScheme || 'light'].tint; // Ensure this is valid
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: activeTintColor,
         headerShown: true,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
-          default: {},
+          android: { backgroundColor: 'white' }, // Example Android styling
+          default: {}, // Default platform styling
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Tasks',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }: {color: string}) => {
+            return <IconSymbol size={28} name="house.fill" color={color} />;
+          },
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Reminders',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }: {color: string}) => {
+            return <IconSymbol size={28} name="paperplane.fill" color={color} />;
+          },
         }}
-        />
-        <Tabs.Screen
+      />
+      <Tabs.Screen
         name="timer"
         options={{
           title: 'Timer',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }: {color: string}) => {
+            return <IconSymbol size={28} name="clock.fill" color={color} />;
+          },
         }}
-
       />
     </Tabs>
   );

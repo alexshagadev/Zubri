@@ -1,4 +1,3 @@
-
 import React, {useState, useEffect} from "react";
 import {Button, Pressable, StyleSheet, Text, View} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'; // Import from expo-linear-gradient

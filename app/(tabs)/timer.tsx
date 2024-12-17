@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, Platform, View, SafeAreaView,Text } from 'react-native';
+import { Image, StyleSheet, Platform, View, SafeAreaView,Text, ScrollView } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -13,10 +13,10 @@ export default function TimerScreen() {
         <Text style = {styles.BigText}>T I M E R</Text>
         <TimerComponent startingTime={startingTime}/>
       </SafeAreaView>
-      <View style={styles.stepContainer}>
+      <ScrollView style={styles.stepContainer}>
         <Text style= {styles.BigText} >S E T T I N G S</Text>
         <SliderComponent/>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
   },
   stepContainer: {
     gap: 8,
-    marginBottom: 8,
   },
   reactLogo: {
     height: 178,
